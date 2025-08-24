@@ -7,14 +7,20 @@ const dbConfig = {
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'root',
   database: process.env.DB_NAME || 'chai_admin_db',
-  port: process.env.DB_PORT || 3306,
+  port: Number(process.env.DB_PORT) || 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  acquireTimeout: 60000,
-  timeout: 60000,
-  reconnect: true
+  // Use connectTimeout instead of invalid options
+  connectTimeout: 60000,
 };
+
+// Optional SSL (for managed DBs like PlanetScale/RDS). Enable with DB_SSL=true
+if ((process.env.DB_SSL || '').toString().toLowerCase() === 'true') {
+  dbConfig.ssl = {
+    rejectUnauthorized: ((process.env.DB_SSL_REJECT_UNAUTHORIZED || 'true').toString().toLowerCase() === 'true')
+  };
+}
 
 // Create connection pool
 const pool = mysql.createPool(dbConfig);
@@ -150,3 +156,4 @@ module.exports = {
   testConnection,
   initializeTables
 };
+
